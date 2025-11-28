@@ -60,7 +60,7 @@ typedef struct{
     char codigoProduto[20];
 }PROMOCAO;
 
-// ESTRUTURA VENDA (Relatórios)
+// ESTRUTURA VENDA (Relat?rios)
 typedef struct{
     int idVenda;
     char cpfCliente[20]; 
@@ -72,11 +72,11 @@ typedef struct{
 
 
 // ----------------------------------------------------------------------
-// --- 2. FUNÇÕES AUXILIARES DE BUSCA E VALIDAÇÃO ---
+// --- 2. FUN??ES AUXILIARES DE BUSCA E VALIDA??O ---
 // ----------------------------------------------------------------------
 
-// Função de busca (Cliente)
-// Retorna a posição inicial do registro no arquivo ou -1 se não encontrado.
+// Fun??o de busca (Cliente)
+// Retorna a posi??o inicial do registro no arquivo ou -1 se n?o encontrado.
 int busca_cliente(FILE *arquivo, char CPF[])
 {
 	CADASTRO cad;
@@ -114,13 +114,13 @@ int laboratorio_existe(char CNPJ[]) {
 }
 
 int eh_bissexto(int ano) {
-    // Retorna 1 (verdadeiro) se for bissexto, 0 (falso) caso contrário
+    // Retorna 1 (verdadeiro) se for bissexto, 0 (falso) caso contr?rio
     return (ano % 4 == 0 && ano % 100 != 0) || (ano % 400 == 0);
 }
 
-// Retorna o número de dias de um mês específico
+// Retorna o n?mero de dias de um m?s espec?fico
 int dias_no_mes(int mes, int ano) {
-    if (mes < 1 || mes > 12) return 0; // Evita erro se o mês for inválido
+    if (mes < 1 || mes > 12) return 0; // Evita erro se o m?s for inv?lido
 
     if (mes == 2) {
         return eh_bissexto(ano) ? 29 : 28;
@@ -129,13 +129,13 @@ int dias_no_mes(int mes, int ano) {
     else if (mes == 4 || mes == 6 || mes == 9 || mes == 11) {
         return 30;
     } 
-    // Demais meses (1, 3, 5, 7, 8, 10, 12) têm 31 dias
+    // Demais meses (1, 3, 5, 7, 8, 10, 12) t?m 31 dias
     else {
         return 31;
     }
 }
 
-// Converte data para long para comparação
+// Converte data para long para compara??o
 long data_to_long(NASCIMENTO data) {
     return (long)data.ano * 10000 + (long)data.mes * 100 + (long)data.dia;
 }
@@ -224,7 +224,7 @@ int busca_promocao(FILE *arquivo, int id)
 
 
 // ----------------------------------------------------------------------
-// --- 3. MÓDULO GERENCIAR CLIENTES ---
+// --- 3. M?DULO GERENCIAR CLIENTES ---
 // ----------------------------------------------------------------------
 
 int menu_cliente()
@@ -511,7 +511,7 @@ void gerenciar_clientes_sub_menu() {
 }
 
 // ----------------------------------------------------------------------
-// --- 4. MÓDULO GERENCIAR LABORATÓRIO --- ok
+// --- 4. M?DULO GERENCIAR LABORAT?RIO --- ok
 // ----------------------------------------------------------------------
 
 int menu_laboratorio()
@@ -535,7 +535,7 @@ int busca_laboratorio(FILE *arquivo, char CNPJ[])
 	LABORATORIO lab;
 	int pos;
 	rewind(arquivo);
-	// CORRIGIDO: Loop de leitura padrão.
+	// CORRIGIDO: Loop de leitura padr?o.
 	while(fread(&lab,sizeof(LABORATORIO),1,arquivo)==1)
 	{
 		if(stricmp(CNPJ,lab.CNPJ) == 0)
@@ -557,7 +557,7 @@ void cadastrar_laboratorio()
 	if(arquivo == NULL) {
 		printf("Erro no arquivo");
         system("pause");
-        return; // Padrão: Retorna imediatamente em erro.
+        return; // Padr?o: Retorna imediatamente em erro.
     }
 	
 	do{
@@ -565,7 +565,7 @@ void cadastrar_laboratorio()
 		printf("\nCNPJ: ");fflush(stdin);
 		gets(lab.CNPJ);
         
-        if (strlen(lab.CNPJ) == 0) break; // Saída se o CNPJ for vazio
+        if (strlen(lab.CNPJ) == 0) break; // Sa?da se o CNPJ for vazio
 
 		pos = busca_laboratorio(arquivo, lab.CNPJ);
 		if(pos == -1)
@@ -616,7 +616,7 @@ void exibir_laboratorio()
 	if(arquivo == NULL) {
 		printf("\nNenhum laboratorio cadastrado.");
         system("pause");
-        return; // Padrão: Retorna imediatamente em erro.
+        return; // Padr?o: Retorna imediatamente em erro.
     }
 
     system("cls");
@@ -651,14 +651,14 @@ void alterar_laboratorio()
 	if(arquivo == NULL) {
 		printf("Erro no arquivo");
         system("pause");
-        return; // Padrão: Retorna imediatamente em erro.
+        return; // Padr?o: Retorna imediatamente em erro.
     }
 	
 	system("cls");
 	printf("Digite o CNPJ que sera alterado (deixe vazio para sair): "); fflush(stdin);
 	gets(lab.CNPJ);
 	
-	while(strlen(lab.CNPJ) != 0) // Padrão: Usado strlen
+	while(strlen(lab.CNPJ) != 0) // Padr?o: Usado strlen
 	{
 		pos = busca_laboratorio(arquivo, lab.CNPJ);
 		if(pos == -1) {
@@ -732,14 +732,14 @@ void excluir_laboratorio()
 	if(arquivo == NULL) {
 		printf("\nNenhum arquivo de laboratorio encontrado.");
         system("pause");
-        return; // Padrão: Retorna imediatamente em erro.
+        return; // Padr?o: Retorna imediatamente em erro.
     }
 	
 	system("cls");
 	printf("Informe o CNPJ do laboratorio que deseja excluir (deixe vazio para sair): "); fflush(stdin);
 	gets(cnpj);
 	
-	if(strlen(cnpj) != 0) // Padrão: Usado strlen
+	if(strlen(cnpj) != 0) // Padr?o: Usado strlen
 	{
 		pos = busca_laboratorio(arquivo, cnpj);
 		if(pos == -1) {
@@ -764,7 +764,7 @@ void excluir_laboratorio()
                 } else {
                     rewind(arquivo);
                     
-                    // CRÍTICO CORRIGIDO: Loop de leitura padrão para evitar o "problema do último registro"
+                    // CR?TICO CORRIGIDO: Loop de leitura padr?o para evitar o "problema do ?ltimo registro"
                     while(fread(&lab, sizeof(LABORATORIO), 1, arquivo) == 1)
                     {
                         if(stricmp(cnpj, lab.CNPJ) != 0)
@@ -787,7 +787,7 @@ void excluir_laboratorio()
         printf("\n\nCNPJ nao informado. Exclusao cancelada.\n");
     }
     
-    // Fechamento condicional para o caso de erro no arquivo temporário
+    // Fechamento condicional para o caso de erro no arquivo tempor?rio
     if (arquivo != NULL && arquivo_fechado_interno == 0) {
         fclose(arquivo);
     }
@@ -806,7 +806,7 @@ void ordenar_laboratorio()
     if(arquivo == NULL) {
     	printf("\nErro no arquivo ou nenhum laboratorio cadastrado.");
         system("pause");
-        return; // Padrão: Retorna imediatamente em erro.
+        return; // Padr?o: Retorna imediatamente em erro.
     }
     
     fseek(arquivo, 0, SEEK_END);
@@ -818,7 +818,7 @@ void ordenar_laboratorio()
         printf("\nOrdenando %d laboratorios por nome...\n", qtde);
         
         int trocou;
-        // CORRIGIDO: Lógica Bubble Sort com for aninhado e flag 'trocou'
+        // CORRIGIDO: L?gica Bubble Sort com for aninhado e flag 'trocou'
         for (passo = 0; passo < qtde - 1; passo++) {
             trocou = 0;
             for (i = 0; i < qtde - 1 - passo; i++) {
@@ -831,11 +831,11 @@ void ordenar_laboratorio()
                 
                 if(stricmp(lab.nomeLaboratorio, lab_aux.nomeLaboratorio) > 0)
                 {
-                    // CRÍTICO CORRIGIDO: Escreve a estrutura COMPLETA (&lab_aux)
+                    // CR?TICO CORRIGIDO: Escreve a estrutura COMPLETA (&lab_aux)
                     fseek(arquivo, i * sizeof(LABORATORIO), SEEK_SET);
                     fwrite(&lab_aux, sizeof(LABORATORIO), 1, arquivo); 
                     
-                    // CRÍTICO CORRIGIDO: Escreve a estrutura COMPLETA (&lab)
+                    // CR?TICO CORRIGIDO: Escreve a estrutura COMPLETA (&lab)
                     fseek(arquivo, (i + 1) * sizeof(LABORATORIO), SEEK_SET);
                     fwrite(&lab, sizeof(LABORATORIO), 1, arquivo);
                     
@@ -870,7 +870,7 @@ void gerenciar_laboratorio_sub_menu() {
 
 
 // ----------------------------------------------------------------------
-// --- 5. MÓDULO GERENCIAR PRODUTOS (Com Validação de Laboratório) --- ok
+// --- 5. M?DULO GERENCIAR PRODUTOS (Com Valida??o de Laborat?rio) --- ok
 // ----------------------------------------------------------------------
 
 int menu_produto()
@@ -898,7 +898,7 @@ void cadastrar_produto() {
     if(arquivo == NULL) {
         printf("Erro no arquivo");
         system("pause");
-        return; // Sai da função em caso de erro.
+        return; // Sai da fun??o em caso de erro.
     }
 
     do {
@@ -921,7 +921,7 @@ void cadastrar_produto() {
             printf("\nData Validade (Dia Mes Ano): "); 
             scanf("%d %d %d", &prod.dataValidade.dia, &prod.dataValidade.mes, &prod.dataValidade.ano);
             
-            // --- VALIDAÇÃO DO CNPJ DO LABORATÓRIO (RESTRICAO APLICADA) ---
+            // --- VALIDA??O DO CNPJ DO LABORAT?RIO (RESTRICAO APLICADA) ---
             int lab_valido = 0;
             char temp_cnpj[20];
 
@@ -1149,13 +1149,13 @@ void ordenar_produto()
     {
         printf("Erro no arquivo");
         system("pause");
-        return; // Sai da função em caso de erro.
+        return; // Sai da fun??o em caso de erro.
     }
     
     fseek(arquivo, 0, 2);
     qtde = ftell(arquivo) / sizeof(PRODUTO);
     
-    // A verificação qtde <= 1 não é mais um return, apenas uma mensagem.
+    // A verifica??o qtde <= 1 n?o ? mais um return, apenas uma mensagem.
     if (qtde <= 1) {
         printf("\nNao ha necessidade de ordenacao.");
     } else {
@@ -1167,17 +1167,17 @@ void ordenar_produto()
             trocou = 0;
             for (i = 0; i < qtde - 1 - passo; i++) {
                 
-                // Lê prod
+                // L? prod
                 fseek(arquivo, i * sizeof(PRODUTO), 0);
                 fread(&prod, sizeof(PRODUTO), 1, arquivo); 
                 
-                // Lê prod_aux
+                // L? prod_aux
                 fseek(arquivo, (i + 1) * sizeof(PRODUTO), 0);
                 fread(&prod_aux, sizeof(PRODUTO), 1, arquivo);
                 
                 if(stricmp(prod.nomeProduto, prod_aux.nomeProduto) > 0)
                 {
-                    // Troca a posição das estruturas no arquivo
+                    // Troca a posi??o das estruturas no arquivo
                     fseek(arquivo, i * sizeof(PRODUTO), 0);
                     fwrite(&prod_aux, sizeof(PRODUTO), 1, arquivo);
                     
@@ -1214,7 +1214,7 @@ void gerenciar_produtos_sub_menu() {
 
 
 // ----------------------------------------------------------------------
-// --- 6. MÓDULO GERENCIAR CATEGORIAS ---ok
+// --- 6. M?DULO GERENCIAR CATEGORIAS ---ok
 // ----------------------------------------------------------------------
 
 int menu_categoria()
@@ -1256,7 +1256,7 @@ void cadastrar_categoria()
 		
 		if (cat.idCategoria != 0) 
 		{ 
-            // Lógica principal só executa se o ID for diferente de 0
+            // L?gica principal s? executa se o ID for diferente de 0
 			pos = busca_categoria(arquivo, cat.idCategoria);
 			if(pos == -1)
 			{
@@ -1275,7 +1275,7 @@ void cadastrar_categoria()
 		}
 		else
 		{
-            continuar = 'N'; // Força a saída do laço se o ID for 0
+            continuar = 'N'; // For?a a sa?da do la?o se o ID for 0
 		}
 	}while(continuar == 'S');
 	
@@ -1298,7 +1298,7 @@ void exibir_categoria()
 	}
 	else
 	{
-        // Se o arquivo abriu, executa a lógica de listagem
+        // Se o arquivo abriu, executa a l?gica de listagem
 		system("cls");
         printf("--- Categorias Cadastradas ---\n");
 		while(fread(&cat, sizeof(CATEGORIA), 1, arquivo) == 1)
@@ -1427,7 +1427,7 @@ void excluir_categoria()
                 else 
                 {
                     printf("\nErro ao criar arquivo auxiliar. Exclusao cancelada.\n");
-                    // Apenas fecha o arquivo original, já que o temp não abriu
+                    // Apenas fecha o arquivo original, j? que o temp n?o abriu
                     fclose(arquivo);
                 }
 			} 
@@ -1479,7 +1479,7 @@ void ordenar_categoria()
                 
                 if(stricmp(cat.nomeCategoria, cat_aux.nomeCategoria) > 0)
                 {
-                    // Troca a posição das estruturas no arquivo
+                    // Troca a posi??o das estruturas no arquivo
                     fseek(arquivo, i * sizeof(CATEGORIA), 0);
                     fwrite(&cat_aux, sizeof(CATEGORIA), 1, arquivo);
                     
@@ -1516,7 +1516,7 @@ void gerenciar_categorias_sub_menu() {
     } while (opc_cat != 0);
 }
 // ----------------------------------------------------------------------
-// --- 7. MÓDULO GERAR PROMOÇÕES ---
+// --- 7. M?DULO GERAR PROMO??ES ---
 // ----------------------------------------------------------------------
 
 int menu_promocao()
@@ -1529,6 +1529,7 @@ int menu_promocao()
 	printf("\n3 - Alterar dados da promocao");
 	printf("\n4 - Deletar promocao");
 	printf("\n5 - Cadastrar promocao por produto proximo do vencimento");
+	printf("\n6- Cadastrar promocao por lote proximo do vencimento");
 	printf("\n0 - Voltar menu principal");
 	printf("\nSelecione a opcao: ");
 	scanf("%d", &opc);
@@ -1766,99 +1767,66 @@ void excluir_promocao()
     system("pause");
     system("cls");
 }
-void gerar_promocoes_vencimento()
+
+	void gerar_promocao_por_lote()
 {
-	FILE *arquivo;
-	PRODUTO prod;
-    int count = 0;
+    FILE *arquivo;
+    PRODUTO prod;
     int dias_limite;
     float percentual_desconto;
     NASCIMENTO data_hoje;
+    char lote_promocao[30];
     
     system("cls");
-    printf("--- Gerar Promocoes: Produtos Proximos ao Vencimento ---\n");
+    printf("--- Gerar Promocao por Lote Proximo ao Vencimento ---\n");
     
-    // 1. Coleta da Data de Hoje
     printf("\nInforme a DATA DE HOJE (Dia Mes Ano): ");
     scanf("%d %d %d", &data_hoje.dia, &data_hoje.mes, &data_hoje.ano);
     
-    // 2. Coleta do Limite de Dias
-    printf("Informe o NUMERO DE DIAS LIMITE para vencimento (Ex: 30 dias): ");
+    printf("Informe o NUMERO DE DIAS LIMITE: ");
     scanf("%d", &dias_limite);
     
-    // 3. Coleta do Percentual de Desconto
-    printf("Informe o PERCENTUAL DE DESCONTO a ser aplicado (Ex: 0.15 para 15%%): ");
+    printf("Informe o PERCENTUAL DE DESCONTO (Ex: 0.20 para 20%%): ");
     scanf("%f", &percentual_desconto);
     
-    // Validacao basica de percentual
-    if (percentual_desconto <= 0 || percentual_desconto >= 1.0) {
-        printf("\nPercentual de desconto invalido. Deve ser entre 0.01 e 0.99.\n");
+    printf("Informe o LOTE para promocao: "); fflush(stdin);
+    gets(lote_promocao);
+    
+    NASCIMENTO data_limite = somar_dias_data(data_hoje, dias_limite);
+    long limite_int = data_to_long(data_limite);
+    
+    arquivo = fopen("produto.bin", "rb+");
+    if(arquivo == NULL) {
+        printf("\nErro ao abrir arquivo de produtos.");
         system("pause");
         return;
     }
-
-    // 4. Cálculo da Data Limite Futura
-    NASCIMENTO data_limite = somar_dias_data(data_hoje, dias_limite); 
-    long limite_int = data_to_long(data_limite);
     
-    // 5. Abertura do arquivo para leitura e escrita (rb+)
-	arquivo = fopen("produto.bin", "rb+");
+    int count = 0;
+    long pos_atual;
     
-	if(arquivo == NULL)
-	{
-		printf("\nErro no arquivo ou nenhum produto cadastrado.");
-	}
-	else
-	{
-        printf("\n-----------------------------------------------------");
-        printf("\nData de Hoje: %02d/%02d/%d", data_hoje.dia, data_hoje.mes, data_hoje.ano);
-        printf("\nLimite de Vencimento: %02d/%02d/%d (Proximos %d dias)", data_limite.dia, data_limite.mes, data_limite.ano, dias_limite);
-        printf("\nDesconto Aplicado: %.2f%%\n", percentual_desconto * 100);
-        printf("-----------------------------------------------------\n");
-		
-        long pos_atual;
-        
-        // Loop para ler o arquivo e aplicar a promocao
-        while(fread(&prod, sizeof(PRODUTO), 1, arquivo) == 1)
-		{
+    while(fread(&prod, sizeof(PRODUTO), 1, arquivo) == 1) {
+        if(stricmp(prod.lote, lote_promocao) == 0) {
             long validade_int = data_to_long(prod.dataValidade);
             
-            // Verifica se o produto tem validade dentro ou antes do limite futuro
-            if (validade_int <= limite_int)
-            {
-                // Guarda a posicao inicial do registro. Subtrai o tamanho do struct lido.
-                pos_atual = ftell(arquivo) - sizeof(PRODUTO); 
-                
-                // 6. Aplica o Desconto
+            if(validade_int <= limite_int) {
+                pos_atual = ftell(arquivo) - sizeof(PRODUTO);
                 float preco_original = prod.precoVenda;
                 prod.precoVenda = prod.precoVenda * (1.0 - percentual_desconto);
                 
-                // 7. Volta para a posicao e escreve o registro atualizado (rb+)
                 fseek(arquivo, pos_atual, SEEK_SET);
                 fwrite(&prod, sizeof(PRODUTO), 1, arquivo);
                 
-                // 8. Feedback
                 count++;
-                printf("\nPROMOÇÃO APLICADA (%d):", count);
-                printf("\nCodigo: %s - %s", prod.codigo, prod.nomeProduto);
-                printf("\nValidade: %02d/%02d/%d", prod.dataValidade.dia, prod.dataValidade.mes, prod.dataValidade.ano);
-                printf("\nPreco: R$ %.2f -> R$ %.2f", preco_original, prod.precoVenda);
-                printf("\n--------------------------------------");
-                
-                // Note: O fseek/fwrite muda a posição do arquivo, mas o loop continua com o próximo fread na próxima linha.
+                printf("\nPromocao aplicada: %s - %.2f -> %.2f", 
+                       prod.nomeProduto, preco_original, prod.precoVenda);
             }
-		}
-        
-        if (count == 0) 
-            printf("\nNenhum produto encontrado proximo ao vencimento (%d dias) para promocao.", dias_limite);
-        else
-            printf("\n\nPROMOÇÃO FINALIZADA: %d produtos atualizados.", count);
-        
-        fclose(arquivo); 
-	}
+        }
+    }
     
-	system("pause");
-	system("cls");
+    printf("\n\nTotal de produtos do lote em promocao: %d\n", count);
+    fclose(arquivo);
+    system("pause");
 }
 
 void gerar_promocoes_sub_menu() {
@@ -1876,6 +1844,8 @@ void gerar_promocoes_sub_menu() {
 				break;
             case 5: gerar_promocoes_vencimento(); 
 				break;
+				  case 6: gerar_promocao_por_lote();
+				  break;
             case 0: printf("\nVoltando ao menu principal . . . \n"); break;
             default: printf("\nOpcao invalida. "); system("pause");
         }
@@ -1883,7 +1853,7 @@ void gerar_promocoes_sub_menu() {
 }
 
 // ----------------------------------------------------------------------
-// --- 8. MÓDULO EMITIR RELATÓRIOS ---
+// --- 8. M?DULO EMITIR RELAT?RIOS ---
 // ----------------------------------------------------------------------
 
 int menu_relatorios()
@@ -2004,7 +1974,7 @@ void relatorio_vendas_por_periodo()
         printf("Data de Fim (Dia Mes Ano): ");
         scanf("%d %d %d", &data_fim.dia, &data_fim.mes, &data_fim.ano);
         
-        // Conversão das datas de início e fim para um número inteiro comparável (AAAA MM DD)
+        // Convers?o das datas de in?cio e fim para um n?mero inteiro compar?vel (AAAA MM DD)
         long inicio_int = (long)data_inicio.ano * 10000 + (long)data_inicio.mes * 100 + data_inicio.dia;
         long fim_int = (long)data_fim.ano * 10000 + (long)data_fim.mes * 100 + data_fim.dia;
         
@@ -2012,10 +1982,10 @@ void relatorio_vendas_por_periodo()
         
         while(fread(&venda, sizeof(VENDA), 1, arquivo) == 1)
 		{
-            // Converte a data da venda para um número inteiro comparável
+            // Converte a data da venda para um n?mero inteiro compar?vel
             long venda_int = (long)venda.dataVenda.ano * 10000 + (long)venda.dataVenda.mes * 100 + venda.dataVenda.dia;
 
-            // Verifica se a data da venda está dentro do período (>= inicio E <= fim)
+            // Verifica se a data da venda est? dentro do per?odo (>= inicio E <= fim)
             if (venda_int >= inicio_int && venda_int <= fim_int)
             {
                 count++;
@@ -2038,6 +2008,7 @@ void relatorio_vendas_por_periodo()
 	system("pause");
 	system("cls");
 }
+
 void relatorio_produtos_vencimento()
 {
 	FILE *arquivo;
@@ -2076,7 +2047,7 @@ void relatorio_produtos_vencimento()
 		{
             long validade_int = data_to_long(prod.dataValidade);
             
-            // O produto está perto do vencimento ou já venceu (validade <= limite futuro)
+            // O produto est? perto do vencimento ou j? venceu (validade <= limite futuro)
             if (validade_int <= limite_int)
             {
                 count++;
@@ -2118,9 +2089,318 @@ void emitir_relatorios_sub_menu() {
     } while (opc_rel != 0);
 }
 
+void efetuar_venda()
+{
+    FILE *arq_venda, *arq_prod, *arq_cli;
+    VENDA venda;
+    PRODUTO prod;
+    CADASTRO cliente;
+    char cpf[20], codigo_prod[20];
+    int pos_prod, pos_cli;
+    
+    system("cls");
+    printf("--- Efetuar Venda ---\n");
+    
+    // Verifica cliente
+    arq_cli = fopen("cliente.bin", "rb");
+    if(arq_cli == NULL) {
+        printf("\nErro: Nenhum cliente cadastrado.");
+        system("pause");
+        return;
+    }
+    
+    printf("\nCPF do Cliente: "); fflush(stdin);
+    gets(cpf);
+    
+    pos_cli = busca_cliente(arq_cli, cpf);
+    if(pos_cli == -1) {
+        printf("\nCliente nao encontrado!");
+        fclose(arq_cli);
+        system("pause");
+        return;
+    }
+    fclose(arq_cli);
+    
+    // Verifica produto
+    arq_prod = fopen("produto.bin", "rb+");
+    if(arq_prod == NULL) {
+        printf("\nErro: Nenhum produto cadastrado.");
+        system("pause");
+        return;
+    }
+    
+    printf("\nCodigo do Produto: "); fflush(stdin);
+    gets(codigo_prod);
+    
+    pos_prod = busca_produto(arq_prod, codigo_prod);
+    if(pos_prod == -1) {
+        printf("\nProduto nao encontrado!");
+        fclose(arq_prod);
+        system("pause");
+        return;
+    }
+    
+    fseek(arq_prod, pos_prod, SEEK_SET);
+    fread(&prod, sizeof(PRODUTO), 1, arq_prod);
+    
+    printf("\nProduto: %s", prod.nomeProduto);
+    printf("\nEstoque disponivel: %d", prod.quantidade);
+    printf("\nPreco unitario: R$ %.2f", prod.precoVenda);
+    
+    printf("\n\nQuantidade a vender: ");
+    scanf("%d", &venda.quantidadeVendida);
+    
+    if(venda.quantidadeVendida > prod.quantidade) {
+        printf("\nEstoque insuficiente!");
+        fclose(arq_prod);
+        system("pause");
+        return;
+    }
+    
+    // Atualiza estoque
+    prod.quantidade -= venda.quantidadeVendida;
+    fseek(arq_prod, pos_prod, SEEK_SET);
+    fwrite(&prod, sizeof(PRODUTO), 1, arq_prod);
+    fclose(arq_prod);
+    
+    // Registra venda
+    arq_venda = fopen("venda.bin", "ab+");
+    if(arq_venda == NULL) {
+        printf("\nErro ao abrir arquivo de vendas.");
+        system("pause");
+        return;
+    }
+    
+    // Gera ID da venda
+    fseek(arq_venda, 0, SEEK_END);
+    venda.idVenda = (ftell(arq_venda) / sizeof(VENDA)) + 1;
+    
+    strcpy(venda.cpfCliente, cpf);
+    strcpy(venda.codigoProduto, codigo_prod);
+    venda.precoTotal = prod.precoVenda * venda.quantidadeVendida;
+    
+    printf("\nData da Venda (Dia Mes Ano): ");
+    scanf("%d %d %d", &venda.dataVenda.dia, &venda.dataVenda.mes, &venda.dataVenda.ano);
+    
+    fwrite(&venda, sizeof(VENDA), 1, arq_venda);
+    fclose(arq_venda);
+    
+    printf("\n\n=== VENDA REALIZADA COM SUCESSO ===");
+    printf("\nID Venda: %d", venda.idVenda);
+    printf("\nValor Total: R$ %.2f", venda.precoTotal);
+    printf("\nNovo Estoque: %d\n", prod.quantidade);
+    
+    system("pause");
+}
 
 // ----------------------------------------------------------------------
-// --- 9. MENU PRINCIPAL (Main) ---
+// --- 9. MÓDULO EFETUAR COMPRA ---
+// ----------------------------------------------------------------------
+
+void efetuar_compra()
+{
+    FILE *arq_prod;
+    PRODUTO prod;
+    char codigo[20];
+    int pos, qtd_compra;
+    
+    system("cls");
+    printf("--- Efetuar Compra (Entrada de Estoque) ---\n");
+    
+    arq_prod = fopen("produto.bin", "rb+");
+    if(arq_prod == NULL) {
+        printf("\nErro ao abrir arquivo de produtos.");
+        system("pause");
+        return;
+    }
+    
+    printf("\nCodigo do Produto: "); fflush(stdin);
+    gets(codigo);
+    
+    pos = busca_produto(arq_prod, codigo);
+    if(pos == -1) {
+        printf("\nProduto nao encontrado!");
+        fclose(arq_prod);
+        system("pause");
+        return;
+    }
+    
+    fseek(arq_prod, pos, SEEK_SET);
+    fread(&prod, sizeof(PRODUTO), 1, arq_prod);
+    
+    printf("\nProduto: %s", prod.nomeProduto);
+    printf("\nEstoque atual: %d", prod.quantidade);
+    
+    printf("\n\nQuantidade a comprar: ");
+    scanf("%d", &qtd_compra);
+    
+    if(qtd_compra <= 0) {
+        printf("\nQuantidade invalida!");
+        fclose(arq_prod);
+        system("pause");
+        return;
+    }
+    
+    printf("\nNovo Preco de Custo (atual: %.2f): ", prod.precoCusto);
+    scanf("%f", &prod.precoCusto);
+    
+    printf("Novo Preco de Venda (atual: %.2f): ", prod.precoVenda);
+    scanf("%f", &prod.precoVenda);
+    
+    // Atualiza estoque
+    prod.quantidade += qtd_compra;
+    
+    fseek(arq_prod, pos, SEEK_SET);
+    fwrite(&prod, sizeof(PRODUTO), 1, arq_prod);
+    fclose(arq_prod);
+    
+    printf("\n\n=== COMPRA REGISTRADA COM SUCESSO ===");
+    printf("\nQuantidade adicionada: %d", qtd_compra);
+    printf("\nNovo Estoque: %d\n", prod.quantidade);
+    
+    system("pause");
+}
+
+
+
+int gerar_promocoes_vencimento()
+{
+    FILE *arquivo;
+    PRODUTO prod;
+    int dias_limite;
+    float percentual_desconto;
+    NASCIMENTO data_hoje;
+    
+    system("cls");
+    printf("--- Gerar Promocao por Vencimento Proximo ---\n");
+    
+    printf("\nInforme a DATA DE HOJE (Dia Mes Ano): ");
+    scanf("%d %d %d", &data_hoje.dia, &data_hoje.mes, &data_hoje.ano);
+    
+    printf("Informe o NUMERO DE DIAS LIMITE: ");
+    scanf("%d", &dias_limite);
+    
+    printf("Informe o PERCENTUAL DE DESCONTO (Ex: 0.20 para 20%%): ");
+    scanf("%f", &percentual_desconto);
+    
+    NASCIMENTO data_limite = somar_dias_data(data_hoje, dias_limite);
+    long limite_int = data_to_long(data_limite);
+    
+    arquivo = fopen("produto.bin", "rb+");
+    if(arquivo == NULL) {
+        printf("\nErro ao abrir arquivo de produtos.");
+        system("pause");
+        return;
+    }
+    
+    int count = 0;
+    long pos_atual;
+    
+    printf("\n--- Produtos em Promocao ---\n");
+    
+    while(fread(&prod, sizeof(PRODUTO), 1, arquivo) == 1) {
+        long validade_int = data_to_long(prod.dataValidade);
+        
+        if(validade_int <= limite_int) {
+            pos_atual = ftell(arquivo) - sizeof(PRODUTO);
+            float preco_original = prod.precoVenda;
+            prod.precoVenda = prod.precoVenda * (1.0 - percentual_desconto);
+            
+            fseek(arquivo, pos_atual, SEEK_SET);
+            fwrite(&prod, sizeof(PRODUTO), 1, arquivo);
+            
+            count++;
+            printf("\nProduto: %s", prod.nomeProduto);
+            printf("\nPreco Original: R$ %.2f", preco_original);
+            printf("\nNovo Preco: R$ %.2f", prod.precoVenda);
+            printf("\nDesconto: %.0f%%", percentual_desconto * 100);
+            printf("\n--------------------------------------");
+        }
+    }
+    
+    printf("\n\nTotal de produtos em promocao: %d\n", count);
+    fclose(arquivo);
+    system("pause");
+}
+
+
+
+
+// ----------------------------------------------------------------------
+// --- 10. MÓDULO EFETUAR DESCARTE ---
+// ----------------------------------------------------------------------
+
+void efetuar_descarte()
+{
+    FILE *arq_prod;
+    PRODUTO prod;
+    char codigo[20];
+    int pos, qtd_descarte;
+    char motivo[100];
+    
+    system("cls");
+    printf("--- Efetuar Descarte de Produto ---\n");
+    
+    arq_prod = fopen("produto.bin", "rb+");
+    if(arq_prod == NULL) {
+        printf("\nErro ao abrir arquivo de produtos.");
+        system("pause");
+        return;
+    }
+    
+    printf("\nCodigo do Produto: "); fflush(stdin);
+    gets(codigo);
+    
+    pos = busca_produto(arq_prod, codigo);
+    if(pos == -1) {
+        printf("\nProduto nao encontrado!");
+        fclose(arq_prod);
+        system("pause");
+        return;
+    }
+    
+    fseek(arq_prod, pos, SEEK_SET);
+    fread(&prod, sizeof(PRODUTO), 1, arq_prod);
+    
+    printf("\nProduto: %s", prod.nomeProduto);
+    printf("\nEstoque atual: %d", prod.quantidade);
+    printf("\nValidade: %02d/%02d/%d", prod.dataValidade.dia, prod.dataValidade.mes, prod.dataValidade.ano);
+    
+    printf("\n\nQuantidade a descartar: ");
+    scanf("%d", &qtd_descarte);
+    
+    if(qtd_descarte <= 0 || qtd_descarte > prod.quantidade) {
+        printf("\nQuantidade invalida!");
+        fclose(arq_prod);
+        system("pause");
+        return;
+    }
+    
+    printf("Motivo do descarte: "); fflush(stdin);
+    gets(motivo);
+    
+    printf("\n\nConfirma o descarte de %d unidades? (S/N): ", qtd_descarte);
+    if(toupper(getche()) == 'S') {
+        // Atualiza estoque
+        prod.quantidade -= qtd_descarte;
+        
+        fseek(arq_prod, pos, SEEK_SET);
+        fwrite(&prod, sizeof(PRODUTO), 1, arq_prod);
+        
+        printf("\n\n=== DESCARTE REGISTRADO COM SUCESSO ===");
+        printf("\nQuantidade descartada: %d", qtd_descarte);
+        printf("\nMotivo: %s", motivo);
+        printf("\nNovo Estoque: %d\n", prod.quantidade);
+    } else {
+        printf("\n\nDescarte cancelado.");
+    }
+    
+    fclose(arq_prod);
+    system("pause");
+}
+
+// ----------------------------------------------------------------------
+// --- 11. MENU PRINCIPAL (Main) ---
 // ----------------------------------------------------------------------
 
 int menu_principal() {
@@ -2133,6 +2413,9 @@ int menu_principal() {
     printf("\n4 - Gerenciar Categorias");
     printf("\n5 - Gerar Promocoes");
     printf("\n6 - Emitir Relatorios");
+    printf("\n7 - Efetuar Venda"); 
+    printf("\n8 - Efetuar Compra"); 
+    printf("\n9 - Realizar descarte");
     printf("\n0 - Sair do Sistema");
     printf("\nSelecione a opcao: ");
     scanf("%d", &opc);
@@ -2159,6 +2442,13 @@ int main()
 				break; 
 			case 6: emitir_relatorios_sub_menu(); 
 				break;
+				case 7: efetuar_venda();  
+				break;
+				case 8: efetuar_compra();
+				break;
+				case 9: efetuar_descarte();
+				break;
+				
 			case 0: printf("\nEncerrando o sistema DrogaMais. Ate mais! \n"); 
 				break;
 			default: printf("\nOpcao invalida. "); system("pause");

@@ -85,7 +85,6 @@ int busca_cliente(FILE *arquivo, char CPF[])
 	{
 		if(stricmp(CPF, cad.CPF) == 0)
 		{
-            // Removido o cast (int)
 			int pos = ftell(arquivo) - sizeof(CADASTRO); 
 			return pos;
 		}
@@ -93,26 +92,6 @@ int busca_cliente(FILE *arquivo, char CPF[])
 	return -1;
 }
 
-// Função de busca (Laboratorio)
-// Retorna a posição inicial do registro no arquivo ou -1 se não encontrado.
-int busca_laboratorio(FILE *arquivo, char CNPJ[])
-{
-	LABORATORIO lab;
-	rewind(arquivo);
-	while(fread(&lab, sizeof(LABORATORIO), 1, arquivo) == 1)
-	{
-		if(stricmp(CNPJ, lab.CNPJ) == 0)
-		{
-            // Removido o cast (int)
-			int pos = ftell(arquivo) - sizeof(LABORATORIO); 
-			return pos;
-		}
-	}
-	return -1;
-}
-
-// Função para validar se o CNPJ existe (Sem 'break' no laço principal)
-// Retorna 1 se o laboratório existe, 0 caso contrário.
 int laboratorio_existe(char CNPJ[]) {
 	FILE *arq_lab = fopen("laboratorio.bin", "rb");
     if (arq_lab == NULL) {
@@ -124,12 +103,9 @@ int laboratorio_existe(char CNPJ[]) {
     
     rewind(arq_lab);
     
-    // Alternativa: usar 'encontrado' para controlar o loop é redundante com 'break'
-    // Mantendo a lógica de loop original, mas usando 'break' para seguir o padrão de eficiência:
     while (fread(&lab, sizeof(LABORATORIO), 1, arq_lab) == 1) {
         if (stricmp(CNPJ, lab.CNPJ) == 0) {
             encontrado = 1;
-            break; // Adicionado 'break' para otimizar a busca.
         }
     }
     
@@ -137,8 +113,69 @@ int laboratorio_existe(char CNPJ[]) {
     return encontrado;
 }
 
-// Função de busca (Produto)
-// Retorna a posição inicial do registro no arquivo ou -1 se não encontrado.
+int eh_bissexto(int ano) {
+    // Retorna 1 (verdadeiro) se for bissexto, 0 (falso) caso contrário
+    return (ano % 4 == 0 && ano % 100 != 0) || (ano % 400 == 0);
+}
+
+// Retorna o número de dias de um mês específico
+int dias_no_mes(int mes, int ano) {
+    if (mes < 1 || mes > 12) return 0; // Evita erro se o mês for inválido
+
+    if (mes == 2) {
+        return eh_bissexto(ano) ? 29 : 28;
+    } 
+    // Meses com 30 dias: abril (4), junho (6), setembro (9), novembro (11)
+    else if (mes == 4 || mes == 6 || mes == 9 || mes == 11) {
+        return 30;
+    } 
+    // Demais meses (1, 3, 5, 7, 8, 10, 12) têm 31 dias
+    else {
+        return 31;
+    }
+}
+
+// Converte data para long para comparação
+long data_to_long(NASCIMENTO data) {
+    return (long)data.ano * 10000 + (long)data.mes * 100 + (long)data.dia;
+}
+NASCIMENTO subtrair_dias_data(NASCIMENTO data_base, int dias_limite) {
+    NASCIMENTO resultado = data_base;
+    
+    resultado.dia -= dias_limite;
+
+    while (resultado.dia <= 0) {
+        resultado.mes -= 1;
+
+        if (resultado.mes <= 0) {
+            resultado.ano -= 1;
+            resultado.mes = 12;
+        }
+        resultado.dia += dias_no_mes(resultado.mes, resultado.ano);
+    }
+    return resultado;
+}
+NASCIMENTO somar_dias_data(NASCIMENTO data_base, int dias_limite) {
+    NASCIMENTO resultado = data_base;
+    
+    resultado.dia += dias_limite;
+
+    int max_dias;
+    
+    while (resultado.dia > (max_dias = dias_no_mes(resultado.mes, resultado.ano))) {
+        
+        resultado.dia -= max_dias;
+        
+        resultado.mes += 1;
+
+        if (resultado.mes > 12) {
+            resultado.ano += 1;
+            resultado.mes = 1; 
+        }
+    }
+    return resultado;
+}
+
 int busca_produto(FILE *arquivo, char codigo[])
 {
 	PRODUTO prod;
@@ -147,7 +184,6 @@ int busca_produto(FILE *arquivo, char codigo[])
 	{
 		if(stricmp(codigo, prod.codigo) == 0)
 		{
-            // Removido o cast (int)
 			int pos = ftell(arquivo) - sizeof(PRODUTO); 
 			return pos;
 		}
@@ -155,8 +191,6 @@ int busca_produto(FILE *arquivo, char codigo[])
 	return -1;
 }
 
-// Função de busca (Categoria)
-// Retorna a posição inicial do registro no arquivo ou -1 se não encontrado.
 int busca_categoria(FILE *arquivo, int id)
 {
 	CATEGORIA cat;
@@ -165,7 +199,6 @@ int busca_categoria(FILE *arquivo, int id)
 	{
 		if(id == cat.idCategoria)
 		{
-            // Removido o cast (int)
 			int pos = ftell(arquivo) - sizeof(CATEGORIA); 
 			return pos;
 		}
@@ -173,8 +206,6 @@ int busca_categoria(FILE *arquivo, int id)
 	return -1;
 }
 
-// Função de busca (Promoção)
-// Retorna a posição inicial do registro no arquivo ou -1 se não encontrado.
 int busca_promocao(FILE *arquivo, int id)
 {
 	PROMOCAO prm;
@@ -414,7 +445,7 @@ void ordenar_cliente()
 {
     FILE *arquivo;
     CADASTRO cad, cad_aux;
-    int i, qtde = 0, passo;
+    int i, qtde, passo = 0;
     
     arquivo = fopen("cliente.bin", "rb+");
     if (arquivo == NULL)
@@ -433,8 +464,7 @@ void ordenar_cliente()
         printf("\nOrdenando %d clientes por nome...\n", qtde);
         
         int trocou;
-        for (passo = 0; passo < qtde - 1; passo++)
-		{
+        for (passo = 0; passo < qtde - 1; passo++) {
             trocou = 0;
             for (i = 0; i < qtde - 1 - passo; i++) {
                 
@@ -455,7 +485,7 @@ void ordenar_cliente()
                     trocou = 1;
                 }
             }
- 
+            if (trocou == 0) break; 
         }
         printf("\nArquivo ordenado com sucesso.\n");
     }
@@ -770,7 +800,7 @@ void ordenar_laboratorio()
 {
     FILE *arquivo;
     LABORATORIO lab, lab_aux;
-    int i, qtde = 0,passo;
+    int i,passo , qtde = 0;
     
     arquivo = fopen("laboratorio.bin","rb+");
     if(arquivo == NULL) {
@@ -1112,7 +1142,7 @@ void ordenar_produto()
 {
     FILE *arquivo;
     PRODUTO prod, prod_aux;
-    int i, qtde = 0,passo;
+    int i,passo, qtde = 0;
     
     arquivo = fopen("produto.bin", "rb+");
     if (arquivo == NULL)
@@ -1498,7 +1528,7 @@ int menu_promocao()
 	printf("\n2 - Listar todas promocoes");
 	printf("\n3 - Alterar dados da promocao");
 	printf("\n4 - Deletar promocao");
-	printf("\n5 - Ordenar promocoes (por Nome)");
+	printf("\n5 - Cadastrar promocao por produto proximo do vencimento");
 	printf("\n0 - Voltar menu principal");
 	printf("\nSelecione a opcao: ");
 	scanf("%d", &opc);
@@ -1736,70 +1766,116 @@ void excluir_promocao()
     system("pause");
     system("cls");
 }
-void ordenar_promocao()
+void gerar_promocoes_vencimento()
 {
-    FILE *arquivo;
-    PROMOCAO prm, prm_aux;
-    int i;
-    int qtde = 0;
+	FILE *arquivo;
+	PRODUTO prod;
+    int count = 0;
+    int dias_limite;
+    float percentual_desconto;
+    NASCIMENTO data_hoje;
     
-    arquivo = fopen("promocao.bin", "rb+");
-    
-    if (arquivo == NULL)
-    {
-        printf("Erro no arquivo");
-    }
-    else
-    {
-        fseek(arquivo, 0, 2);
-        qtde = ftell(arquivo) / sizeof(PROMOCAO);
-        
-        printf("\nOrdenando promocoes por nome...\n");
-        
-        // Algoritmo Bubble Sort (sem a verificação qtde<=1 e sem break/continue em if)
-        int trocou = 1;
-        while(trocou == 1) {
-            trocou = 0;
-            for (i = 0; i < qtde - 1; i++) {
-                
-                fseek(arquivo, i * sizeof(PROMOCAO), 0);
-                fread(&prm, sizeof(PROMOCAO), 1, arquivo); 
-                
-                fseek(arquivo, (i + 1) * sizeof(PROMOCAO), 0);
-                fread(&prm_aux, sizeof(PROMOCAO), 1, arquivo);
-                
-                if(stricmp(prm.nomePromocao, prm_aux.nomePromocao) > 0)
-                {
-                    // Troca a posição das estruturas no arquivo
-                    fseek(arquivo, i * sizeof(PROMOCAO), 0);
-                    fwrite(&prm_aux, sizeof(PROMOCAO), 1, arquivo);
-                    
-                    fseek(arquivo, (i + 1) * sizeof(PROMOCAO), 0);
-                    fwrite(&prm, sizeof(PROMOCAO), 1, arquivo);
-                    
-                    trocou = 1; 
-                }
-            }
-        }
-        
-        printf("\nArquivo ordenado com sucesso.\n");
-        
-        fclose(arquivo);
-    }
-    
-    system("pause");
     system("cls");
+    printf("--- Gerar Promocoes: Produtos Proximos ao Vencimento ---\n");
+    
+    // 1. Coleta da Data de Hoje
+    printf("\nInforme a DATA DE HOJE (Dia Mes Ano): ");
+    scanf("%d %d %d", &data_hoje.dia, &data_hoje.mes, &data_hoje.ano);
+    
+    // 2. Coleta do Limite de Dias
+    printf("Informe o NUMERO DE DIAS LIMITE para vencimento (Ex: 30 dias): ");
+    scanf("%d", &dias_limite);
+    
+    // 3. Coleta do Percentual de Desconto
+    printf("Informe o PERCENTUAL DE DESCONTO a ser aplicado (Ex: 0.15 para 15%%): ");
+    scanf("%f", &percentual_desconto);
+    
+    // Validacao basica de percentual
+    if (percentual_desconto <= 0 || percentual_desconto >= 1.0) {
+        printf("\nPercentual de desconto invalido. Deve ser entre 0.01 e 0.99.\n");
+        system("pause");
+        return;
+    }
+
+    // 4. Cálculo da Data Limite Futura
+    NASCIMENTO data_limite = somar_dias_data(data_hoje, dias_limite); 
+    long limite_int = data_to_long(data_limite);
+    
+    // 5. Abertura do arquivo para leitura e escrita (rb+)
+	arquivo = fopen("produto.bin", "rb+");
+    
+	if(arquivo == NULL)
+	{
+		printf("\nErro no arquivo ou nenhum produto cadastrado.");
+	}
+	else
+	{
+        printf("\n-----------------------------------------------------");
+        printf("\nData de Hoje: %02d/%02d/%d", data_hoje.dia, data_hoje.mes, data_hoje.ano);
+        printf("\nLimite de Vencimento: %02d/%02d/%d (Proximos %d dias)", data_limite.dia, data_limite.mes, data_limite.ano, dias_limite);
+        printf("\nDesconto Aplicado: %.2f%%\n", percentual_desconto * 100);
+        printf("-----------------------------------------------------\n");
+		
+        long pos_atual;
+        
+        // Loop para ler o arquivo e aplicar a promocao
+        while(fread(&prod, sizeof(PRODUTO), 1, arquivo) == 1)
+		{
+            long validade_int = data_to_long(prod.dataValidade);
+            
+            // Verifica se o produto tem validade dentro ou antes do limite futuro
+            if (validade_int <= limite_int)
+            {
+                // Guarda a posicao inicial do registro. Subtrai o tamanho do struct lido.
+                pos_atual = ftell(arquivo) - sizeof(PRODUTO); 
+                
+                // 6. Aplica o Desconto
+                float preco_original = prod.precoVenda;
+                prod.precoVenda = prod.precoVenda * (1.0 - percentual_desconto);
+                
+                // 7. Volta para a posicao e escreve o registro atualizado (rb+)
+                fseek(arquivo, pos_atual, SEEK_SET);
+                fwrite(&prod, sizeof(PRODUTO), 1, arquivo);
+                
+                // 8. Feedback
+                count++;
+                printf("\nPROMOÇÃO APLICADA (%d):", count);
+                printf("\nCodigo: %s - %s", prod.codigo, prod.nomeProduto);
+                printf("\nValidade: %02d/%02d/%d", prod.dataValidade.dia, prod.dataValidade.mes, prod.dataValidade.ano);
+                printf("\nPreco: R$ %.2f -> R$ %.2f", preco_original, prod.precoVenda);
+                printf("\n--------------------------------------");
+                
+                // Note: O fseek/fwrite muda a posição do arquivo, mas o loop continua com o próximo fread na próxima linha.
+            }
+		}
+        
+        if (count == 0) 
+            printf("\nNenhum produto encontrado proximo ao vencimento (%d dias) para promocao.", dias_limite);
+        else
+            printf("\n\nPROMOÇÃO FINALIZADA: %d produtos atualizados.", count);
+        
+        fclose(arquivo); 
+	}
+    
+	system("pause");
+	system("cls");
 }
+
 void gerar_promocoes_sub_menu() {
     int opc_prm;
     do {
         opc_prm = menu_promocao();
         switch (opc_prm) {
-            case 1: cadastrar_promocao(); break;
-            case 2: exibir_promocao(); break;
-            case 3: alterar_promocao(); break;
-            case 4: excluir_promocao(); break;
-            case 5: ordenar_promocao(); break;
+            case 1: cadastrar_promocao(); 
+				break;
+            case 2: exibir_promocao(); 
+				break;
+            case 3: alterar_promocao(); 
+				break;
+            case 4: excluir_promocao(); 
+				break;
+            case 5: gerar_promocoes_vencimento(); 
+				break;
             case 0: printf("\nVoltando ao menu principal . . . \n"); break;
             default: printf("\nOpcao invalida. "); system("pause");
         }
@@ -1967,15 +2043,21 @@ void relatorio_produtos_vencimento()
 	FILE *arquivo;
 	PRODUTO prod;
     int count = 0;
-    int dias_limite = 90;
+    int dias_limite;
+    NASCIMENTO data_hoje;
     
-    // --- SIMULACAO DA DATA LIMITE ---
-    // Em um sistema real, esta data seria calculada usando a data atual (HOJE + 90 dias).
-    // Para simplificar, usamos uma data limite fixa (Exemplo: 26/02/2026).
-    // VOCÊ DEVE SUBSTITUIR ISSO PELA LÓGICA DE CÁLCULO DE DATA REAL EM SEU CÓDIGO
-    NASCIMENTO data_limite_exemplo = {26, 2, 2026}; 
-    long limite_int = data_to_long(data_limite_exemplo);
-    // --------------------------------
+    system("cls");
+    printf("--- Relatorio: Produtos Proximos ao Vencimento ---\n");
+    
+    printf("\nInforme a DATA DE HOJE (Dia Mes Ano): ");
+    scanf("%d %d %d", &data_hoje.dia, &data_hoje.mes, &data_hoje.ano);
+    
+    printf("Informe o NUMERO DE DIAS LIMITE (Ex: 90 dias): ");
+    scanf("%d", &dias_limite);
+    
+    NASCIMENTO data_limite = somar_dias_data(data_hoje, dias_limite); 
+
+    long limite_int = data_to_long(data_limite);
     
 	arquivo = fopen("produto.bin", "rb");
     
@@ -1985,14 +2067,16 @@ void relatorio_produtos_vencimento()
 	}
 	else
 	{
-		system("cls");
-        printf("--- Relatorio: Produtos Proximos ao Vencimento ---\n");
-        printf("Limite de Vencimento (Proximos %d dias): %02d/%02d/%d\n", dias_limite, data_limite_exemplo.dia, data_limite_exemplo.mes, data_limite_exemplo.ano);
+        printf("\n-----------------------------------------------------");
+        printf("\nData de Hoje: %02d/%02d/%d", data_hoje.dia, data_hoje.mes, data_hoje.ano);
+        printf("\nLimite de Vencimento (Proximos %d dias): %02d/%02d/%d", dias_limite, data_limite.dia, data_limite.mes, data_limite.ano);
+        printf("\n-----------------------------------------------------\n");
 		
         while(fread(&prod, sizeof(PRODUTO), 1, arquivo) == 1)
 		{
             long validade_int = data_to_long(prod.dataValidade);
             
+            // O produto está perto do vencimento ou já venceu (validade <= limite futuro)
             if (validade_int <= limite_int)
             {
                 count++;
@@ -2019,11 +2103,16 @@ void emitir_relatorios_sub_menu() {
     do {
         opc_rel = menu_relatorios();
         switch (opc_rel) {
-            case 1: relatorio_estoque_baixo(); break;
-            case 2: relatorio_vendas_por_cliente(); break;
-            case 3: relatorio_vendas_por_periodo(); break;
-            case 4: relatorio_produtos_vencimento(); break;
-            case 0: printf("\nVoltando ao menu principal . . . \n"); break;
+            case 1: relatorio_estoque_baixo();
+				break;
+            case 2: relatorio_vendas_por_cliente(); 
+				break;
+            case 3: relatorio_vendas_por_periodo(); 
+				break;
+            case 4: relatorio_produtos_vencimento(); 
+				break;
+            case 0: printf("\nVoltando ao menu principal . . . \n"); 
+				break;
             default: printf("\nOpcao invalida. "); system("pause");
         }
     } while (opc_rel != 0);
@@ -2058,13 +2147,20 @@ int main()
 		opc_principal = menu_principal();
 		switch(opc_principal)
 		{
-			case 1: gerenciar_clientes_sub_menu(); break;
-			case 2: gerenciar_produtos_sub_menu(); break; 
-			case 3: gerenciar_laboratorio_sub_menu(); break;
-			case 4: gerenciar_categorias_sub_menu(); break; 
-			case 5: gerar_promocoes_sub_menu(); break; 
-			case 6: emitir_relatorios_sub_menu(); break;
-			case 0: printf("\nEncerrando o sistema DrogaMais. Ate mais! \n"); break;
+			case 1: gerenciar_clientes_sub_menu();
+				break;
+			case 2: gerenciar_produtos_sub_menu(); 
+				break; 
+			case 3: gerenciar_laboratorio_sub_menu(); 
+				break;
+			case 4: gerenciar_categorias_sub_menu(); 
+				break; 
+			case 5: gerar_promocoes_sub_menu(); 
+				break; 
+			case 6: emitir_relatorios_sub_menu(); 
+				break;
+			case 0: printf("\nEncerrando o sistema DrogaMais. Ate mais! \n"); 
+				break;
 			default: printf("\nOpcao invalida. "); system("pause");
 		}
 	}while(opc_principal != 0);

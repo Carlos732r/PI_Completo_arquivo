@@ -962,8 +962,6 @@ void exibir_produto()
 {
 	FILE *arquivo;
 	PRODUTO prod;
-    int count = 0;
-    
 	arquivo = fopen("produto.bin", "rb");
 	if(arquivo == NULL)
 	{
@@ -973,9 +971,9 @@ void exibir_produto()
 	{
 		system("cls");
         printf("--- Produtos Cadastrados ---\n");
-		while(fread(&prod, sizeof(PRODUTO), 1, arquivo) == 1)
+        while(!feof(arquivo) == 0)
 		{
-            count++;
+			fread(&prod, sizeof(PRODUTO), 1, arquivo);
 			printf("\nCodigo: %s", prod.codigo);
 			printf("\nNome: %s", prod.nomeProduto);
 			printf("\nEstoque: %d", prod.quantidade);
@@ -984,8 +982,6 @@ void exibir_produto()
             printf("\nCNPJ Lab: %s", prod.cnpjLaboratorio);
 			printf("\n--------------------------------------");
 		}
-        if (count == 0) printf("\nNenhum produto encontrado no arquivo.");
-        
         fclose(arquivo);
 	}
 	system("pause");
@@ -1110,8 +1106,9 @@ void excluir_produto()
 				
 				rewind(arquivo);
 				
-				while(fread(&prod, sizeof(PRODUTO), 1, arquivo) == 1) 
+		        while(!feof(arquivo) == 0)
 				{
+					fread(&prod, sizeof(PRODUTO), 1, arquivo);
 					if(stricmp(codigo, prod.codigo) != 0)
 					{
 						fwrite(&prod, sizeof(PRODUTO), 1, temp);
@@ -1301,8 +1298,9 @@ void exibir_categoria()
         // Se o arquivo abriu, executa a l?gica de listagem
 		system("cls");
         printf("--- Categorias Cadastradas ---\n");
-		while(fread(&cat, sizeof(CATEGORIA), 1, arquivo) == 1)
+        while(!feof(arquivo) == 0)
 		{
+			fread(&cat, sizeof(CATEGORIA), 1, arquivo);
             count++;
 			printf("\nID: %d", cat.idCategoria);
 			printf("\nNome: %s", cat.nomeCategoria);
@@ -1409,8 +1407,9 @@ void excluir_categoria()
                 {
                     rewind(arquivo);
                     
-                    while(fread(&cat, sizeof(CATEGORIA), 1, arquivo) == 1) 
-                    {
+			        while(!feof(arquivo) == 0)
+					{
+						fread(&cat, sizeof(CATEGORIA), 1, arquivo);
                         if(id_excluir != cat.idCategoria)
                         {
                             fwrite(&cat, sizeof(CATEGORIA), 1, temp);
@@ -1608,8 +1607,9 @@ void exibir_promocao()
 	{
 		system("cls");
         printf("--- Promocoes Cadastradas ---\n");
-		while(fread(&prm, sizeof(PROMOCAO), 1, arquivo) == 1)
+        while(!feof(arquivo) == 0)
 		{
+			fread(&prm, sizeof(PROMOCAO), 1, arquivo);
             count++;
 			printf("\nID: %d", prm.idPromocao);
 			printf("\nNome: %s", prm.nomePromocao);
@@ -1726,8 +1726,9 @@ void excluir_promocao()
                     {
                         rewind(arquivo);
                         
-                        while(fread(&prm, sizeof(PROMOCAO), 1, arquivo) == 1) 
-                        {
+				        while(!feof(arquivo) == 0)
+						{
+							fread(&prm, sizeof(PROMOCAO), 1, arquivo);
                             if(id_excluir != prm.idPromocao)
                             {
                                 fwrite(&prm, sizeof(PROMOCAO), 1, temp);
@@ -1805,8 +1806,24 @@ void excluir_promocao()
     int count = 0;
     long pos_atual;
     
-    while(fread(&prod, sizeof(PRODUTO), 1, arquivo) == 1) {
-        if(stricmp(prod.lote, lote_promocao) == 0) {
+	if(arquivo == NULL)
+	{
+		printf("\nErro no arquivo ou nenhum produto cadastrado.");
+	}
+	else
+	{
+        printf("\n-----------------------------------------------------");
+        printf("\nData de Hoje: %02d/%02d/%d", data_hoje.dia, data_hoje.mes, data_hoje.ano);
+        printf("\nLimite de Vencimento: %02d/%02d/%d (Proximos %d dias)", data_limite.dia, data_limite.mes, data_limite.ano, dias_limite);
+        printf("\nDesconto Aplicado: %.2f%%\n", percentual_desconto * 100);
+        printf("-----------------------------------------------------\n");
+		
+        long pos_atual;
+        
+        // Loop para ler o arquivo e aplicar a promocao
+        while(!feof(arquivo) == 0)
+		{
+			fread(&prod, sizeof(PRODUTO), 1, arquivo);
             long validade_int = data_to_long(prod.dataValidade);
             
             if(validade_int <= limite_int) {
@@ -1818,8 +1835,13 @@ void excluir_promocao()
                 fwrite(&prod, sizeof(PRODUTO), 1, arquivo);
                 
                 count++;
-                printf("\nPromocao aplicada: %s - %.2f -> %.2f", 
-                       prod.nomeProduto, preco_original, prod.precoVenda);
+                printf("\nPROMOÇÃO APLICADA (%d):", count);
+                printf("\nCodigo: %s - %s", prod.codigo, prod.nomeProduto);
+                printf("\nValidade: %02d/%02d/%d", prod.dataValidade.dia, prod.dataValidade.mes, prod.dataValidade.ano);
+                printf("\nPreco: R$ %.2f -> R$ %.2f", preco_original, prod.precoVenda);
+                printf("\n--------------------------------------");
+                
+    			break;
             }
         }
     }
@@ -1888,8 +1910,9 @@ void relatorio_estoque_baixo()
 	{
 		system("cls");
         printf("--- Relatorio: Produtos com Estoque < %d ---\n", limite);
-		while(fread(&prod, sizeof(PRODUTO), 1, arquivo) == 1)
+        while(!feof(arquivo) == 0)
 		{
+			fread(&prod, sizeof(PRODUTO), 1, arquivo);
             if (prod.quantidade < limite)
             {
                 count++;
@@ -1928,8 +1951,9 @@ void relatorio_vendas_por_cliente()
         printf("Digite o CPF do cliente: "); fflush(stdin);
         gets(cpf_busca);
         
-		while(fread(&venda, sizeof(VENDA), 1, arquivo) == 1)
+        while(!feof(arquivo) == 0)
 		{
+			fread(&venda, sizeof(PRODUTO), 1, arquivo);
             if (stricmp(cpf_busca, venda.cpfCliente) == 0)
             {
                 count++;
@@ -1980,9 +2004,10 @@ void relatorio_vendas_por_periodo()
         
         printf("\nResultados:\n");
         
-        while(fread(&venda, sizeof(VENDA), 1, arquivo) == 1)
+        while(!feof(arquivo) == 0)
 		{
             // Converte a data da venda para um n?mero inteiro compar?vel
+			fread(&venda, sizeof(VENDA), 1, arquivo);
             long venda_int = (long)venda.dataVenda.ano * 10000 + (long)venda.dataVenda.mes * 100 + venda.dataVenda.dia;
 
             // Verifica se a data da venda est? dentro do per?odo (>= inicio E <= fim)
@@ -2043,8 +2068,9 @@ void relatorio_produtos_vencimento()
         printf("\nLimite de Vencimento (Proximos %d dias): %02d/%02d/%d", dias_limite, data_limite.dia, data_limite.mes, data_limite.ano);
         printf("\n-----------------------------------------------------\n");
 		
-        while(fread(&prod, sizeof(PRODUTO), 1, arquivo) == 1)
+        while(!feof(arquivo) == 0)
 		{
+			fread(&prod, sizeof(PRODUTO), 1, arquivo);
             long validade_int = data_to_long(prod.dataValidade);
             
             // O produto est? perto do vencimento ou j? venceu (validade <= limite futuro)
@@ -2057,12 +2083,14 @@ void relatorio_produtos_vencimento()
                 printf("\nValidade: %02d/%02d/%d", prod.dataValidade.dia, prod.dataValidade.mes, prod.dataValidade.ano);
                 printf("\n--------------------------------------");
             }
+            
 		}
         
         if (count == 0) 
             printf("\nNenhum produto encontrado com vencimento proximo (%d dias).\n", dias_limite);
         
         fclose(arquivo); 
+        
 	}
     
 	system("pause");
@@ -2194,7 +2222,7 @@ void efetuar_venda()
 }
 
 // ----------------------------------------------------------------------
-// --- 9. M�DULO EFETUAR COMPRA ---
+// --- 9. MÓDULO EFETUAR COMPRA ---
 // ----------------------------------------------------------------------
 
 void efetuar_compra()
@@ -2327,7 +2355,7 @@ int gerar_promocoes_vencimento()
 
 
 // ----------------------------------------------------------------------
-// --- 10. M�DULO EFETUAR DESCARTE ---
+// --- 10. MÓDULO EFETUAR DESCARTE ---
 // ----------------------------------------------------------------------
 
 void efetuar_descarte()
@@ -2406,7 +2434,7 @@ void efetuar_descarte()
 int menu_principal() {
     int opc;
     system("cls");
-    printf("\n============= DROGAMAIS - MENU PRINCIPAL =============");
+    printf("\n============= DROGAMAIS - MENU PRINCIPAL =============\n");
     printf("\n1 - Gerenciar Clientes");
     printf("\n2 - Gerenciar Produtos");
     printf("\n3 - Gerenciar Laboratorio");
